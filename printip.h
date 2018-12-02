@@ -14,11 +14,11 @@ template<class T> struct is_string : std::false_type{};
 
 template<> struct is_string<std::string> : std::true_type{};
 
-template<class T> struct is_constainer : std::false_type{};
+template<class T> struct is_container : std::false_type{};
 
-template<class T> struct is_constainer<std::list<T>> : std::true_type{};
+template<class T> struct is_container<std::list<T>> : std::true_type{};
 
-template<class T> struct is_constainer<std::vector<T>> : std::true_type{};
+template<class T> struct is_container<std::vector<T>> : std::true_type{};
 
 template<class T>
 typename std::enable_if<std::is_integral<T>::value,void>::type print_ip(const T& val)
@@ -43,7 +43,7 @@ typename std::enable_if<is_string<T>::value, void>::type print_ip(const T& val)
 }
 
 template<class T>
-typename std::enable_if<is_constainer<T>::value,void>::type print_ip(const T& val)
+typename std::enable_if<is_container<T>::value,void>::type print_ip(const T& val)
 {
     auto itr = val.begin();
     if(itr != val.end() )
