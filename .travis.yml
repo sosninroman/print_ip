@@ -1,21 +1,28 @@
 language: cpp
-compiler: clang
+compiler: gcc
 
 before_install:
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update -qq
   - sudo apt-get install doxygen
+
+install: 
+  - sudo apt-get install -qq g++-6
+  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 90
   
 branches:
     only:
         - master
-addons:
-apt:
+
 packages:
 - doxygen
+
 script:
   - cmake .
   - cmake --build .
   - cmake --build . --target package
   - doxygen Doxyfile
+
 deploy:
   - provider: script
     skip_cleanup: true
