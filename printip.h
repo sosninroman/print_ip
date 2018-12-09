@@ -10,9 +10,8 @@
 const int BITS_IN_BYTE = 8;
 const unsigned char BYTE_MASK = 255;
 
-template<class T> struct is_string : std::false_type{};
-
-template<> struct is_string<std::string> : std::true_type{};
+namespace printip
+{
 
 template<class T> struct is_container : std::false_type{};
 
@@ -21,7 +20,13 @@ template<class T> struct is_container<std::list<T>> : std::true_type{};
 template<class T> struct is_container<std::vector<T>> : std::true_type{};
 
 template<class T>
-typename std::enable_if<std::is_integral<T>::value,void>::type print_ip(const T& val)
+constexpr bool is_container_v = is_container<T>::value;
+
+template< class T >
+constexpr bool is_integral_v = std::is_integral<T>::value;
+
+template<class T>
+std::enable_if_t<is_integral_v<T>> print_ip(const T& val)
 {
     const auto getByte = [val](size_t i){
          return static_cast<unsigned char>(val >> (i*BITS_IN_BYTE) );
@@ -36,25 +41,25 @@ typename std::enable_if<std::is_integral<T>::value,void>::type print_ip(const T&
     std::cout << byteVal;
 }
 
-template<class T>
-typename std::enable_if<is_string<T>::value, void>::type print_ip(const T& val)
+void print_ip(const std::string& val)
 {
     std::cout << val;
 }
 
 template<class T>
-typename std::enable_if<is_container<T>::value,void>::type print_ip(const T& val)
+std::enable_if_t<is_container_v<T>> print_ip(const T& val)
 {
     auto itr = val.begin();
     if(itr != val.end() )
     {
-        print_ip<typename std::remove_const<typename std::remove_reference<decltype(*itr)>::type>::type>(*itr++);
+        print_ip<std::remove_const_t<std::remove_reference_t<decltype(*itr)>>>(*itr++);
     }
     while(itr != val.end() )
     {
         std::cout << '.';
-        print_ip<typename std::remove_const<typename std::remove_reference<decltype(*itr)>::type>::type>(*itr++);
+        print_ip<std::remove_const_t<std::remove_reference_t<decltype(*itr)>>>(*itr++);
     }
 }
 
+}
 #endif
