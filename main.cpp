@@ -23,5 +23,13 @@ int main()
     printip::print_ip(lch);
     std::cout << std::endl;
     //print_ip(2.1);
+    std::cout << "tuple{\"1.1\", \"2.2\", \"3.3\"} -> ";
+    printip::print_ip(std::make_tuple(std::string("1.1"), std::string("2.2"), std::string("3.3")));
+    std::cout << std::endl;
+    std::cout << "tuple{3, 2, 1} -> ";
+    printip::print_ip(std::make_tuple(3, 2, 1));
+    std::cout << std::endl;
+    //printip::print_ip(std::make_tuple(3,2,1.1));
+    //printip::print_ip(std::make_tuple(3.1,2.1,1.1));
     return 0;
 }

@@ -6,6 +6,7 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <tuple>
 
 const int BITS_IN_BYTE = 8;
 const unsigned char BYTE_MASK = 255;
@@ -19,11 +20,21 @@ template<class T> struct is_container<std::list<T>> : std::true_type{};
 
 template<class T> struct is_container<std::vector<T>> : std::true_type{};
 
+template<typename T, typename... Args> struct is_same_all;
+
+template<typename T> struct is_same_all<T>: std::true_type{};
+
+template<class T, class U, typename... Args>
+struct is_same_all<T,U,Args...>: std::enable_if_t<std::is_same<T,U>::value, is_same_all<T,Args...>>{};
+
 template<class T>
 constexpr bool is_container_v = is_container<T>::value;
 
-template< class T >
+template<class T>
 constexpr bool is_integral_v = std::is_integral<T>::value;
+
+template<class... Args>
+constexpr bool is_same_all_v = is_same_all<Args...>::value;
 
 template<class T>
 std::enable_if_t<is_integral_v<T>> print_ip(const T& val)
@@ -59,6 +70,32 @@ std::enable_if_t<is_container_v<T>> print_ip(const T& val)
         std::cout << '.';
         print_ip<std::remove_const_t<std::remove_reference_t<decltype(*itr)>>>(*itr++);
     }
+}
+
+namespace internal
+{
+
+template <typename T, std::size_t ...I>
+void printIpTupleImpl(T &&tuple, std::index_sequence<I...>)
+{
+    constexpr size_t seqSize = sizeof...(I);
+    const auto dot = [](size_t ind)
+    {
+        if(ind != seqSize-1)
+            std::cout << '.';
+    };
+
+    using dummyArrayType = int[];
+    dummyArrayType{(print_ip(std::get<I>(tuple) ), dot(I), 0)...};
+}
+
+}
+
+template<typename... Args>
+std::enable_if_t<is_same_all_v<Args...>> print_ip(const std::tuple<Args...>& tuple)
+{
+    constexpr size_t size = std::tuple_size<std::tuple<Args...>>::value;
+    internal::printIpTupleImpl(tuple, std::make_index_sequence<size>{});
 }
 
 }
